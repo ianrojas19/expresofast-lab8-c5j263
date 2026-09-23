@@ -29,8 +29,8 @@ Cuarta parte de la plataforma logística ExpresoFast. Implementación de una Con
 ## Estructura del Repositorio
 
 ```
-expresofast-lab7-c5j263/
-├── backend/          → Proyecto Spring Boot (expresofast/)
+expresofast-lab8-c5j263/
+├── backend/          → Proyecto Spring Boot
 │   ├── src/
 │   └── pom.xml
 ├── database/
@@ -141,7 +141,7 @@ Este proyecto cuenta con una suite de pruebas automatizadas y reportes de cobert
 
 1. **Ejecutar pruebas y generar reporte de cobertura:**
    ```bash
-   cd expresofast
+   cd backend
    mvn clean verify
    ```
    *Nota:* Puedes usar `mvn clean test` para ejecutar solo las pruebas, pero se recomienda `verify` para comprobar las reglas de cobertura.
@@ -149,6 +149,6 @@ Este proyecto cuenta con una suite de pruebas automatizadas y reportes de cobert
 2. **Ver el reporte visual de JaCoCo:**
    Una vez ejecutado el comando anterior, abre el siguiente archivo en tu navegador web:
    ```text
-   expresofast/target/site/jacoco/index.html
+   backend/target/site/jacoco/index.html
    ```
    Allí podrás ver el porcentaje de instrucciones cubiertas
