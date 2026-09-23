@@ -1,235 +1,304 @@
-const API_URL = 'http://localhost:8080/api/envios';
+const API_URL = 'http://localhost:8080/api';
+
 let enviosGlobal = [];
-let bitacoraActual = [];
+let currentFilter = 'TODOS';
 
-function checkAuth() {
-    const token = localStorage.getItem('jwt_token');
-    if (!token) {
-        window.location.href = 'login.html';
+// Decode JWT to get info
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch(e) {
+        return null;
     }
-    return token;
 }
 
-function getRoles() {
-    return JSON.parse(localStorage.getItem('roles') || '[]');
-}
-
+// Authentication Wrapper
 async function fetchWithAuth(url, options = {}) {
-    const token = checkAuth();
-    
-    if (!options.headers) {
-        options.headers = {};
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) {
+        window.location.href = 'index.html';
+        throw new Error("No token");
     }
+
+    if (!options.headers) options.headers = {};
     options.headers['Authorization'] = `Bearer ${token}`;
     options.headers['Content-Type'] = 'application/json';
 
     const response = await fetch(url, options);
 
     if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem('jwt_token');
-        localStorage.removeItem('roles');
-        localStorage.removeItem('username');
-        window.location.href = 'login.html';
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = 'index.html';
         throw new Error('No autorizado');
+    }
+
+    if (response.status === 400) {
+        const errJson = await response.json();
+        showErrorModal(errJson);
+        throw new Error('Bad Request');
     }
 
     return response;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const token = checkAuth();
-    if (!token) return;
-
-    const username = localStorage.getItem('username');
-    document.getElementById('user-info').innerText = username;
-
-    const roles = getRoles();
-    
-    // RBAC: Mostrar panel de registro si es ADMIN u OPERADOR
-    if (roles.includes('ROLE_ADMIN') || roles.includes('ROLE_OPERADOR')) {
-        document.getElementById('panel-registrar').style.display = 'block';
-    } else {
-        document.getElementById('panel-registrar').style.display = 'none';
-        document.getElementById('menu-reportes').style.display = 'none';
-    }
-
-    cargarEnvios();
-    
-    document.getElementById('form-envio').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const payload = {
-            codigoRastreo: document.getElementById('codigoRastreo').value,
-            direccionDestino: document.getElementById('direccionDestino').value,
-            pesoKg: parseFloat(document.getElementById('pesoKg').value),
-            costo: parseFloat(document.getElementById('costo').value),
-            vehiculoId: parseInt(document.getElementById('vehiculoId').value),
-            conductorId: parseInt(document.getElementById('conductorId').value)
-        };
-
-        try {
-            const res = await fetchWithAuth(API_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
+function showErrorModal(err) {
+    const errorList = document.getElementById('error-list');
+    if (errorList) {
+        errorList.innerHTML = `<p>${err.detail || 'Ocurrió un error en la solicitud.'}</p>`;
+        if (err.errors && Array.isArray(err.errors)) {
+            const ul = document.createElement('ul');
+            err.errors.forEach(e => {
+                const li = document.createElement('li');
+                li.innerText = e;
+                ul.appendChild(li);
             });
-            
-            if (res.ok) {
-                alert('Envío registrado con éxito');
-                document.getElementById('form-envio').reset();
-                cargarEnvios();
-            } else {
-                const err = await res.json();
-                alert('Error al registrar: ' + (JSON.stringify(err)));
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error de conexión o validación');
+            errorList.appendChild(ul);
         }
-    });
-
-    document.getElementById('btn-logout').addEventListener('click', () => {
-        localStorage.removeItem('jwt_token');
-        localStorage.removeItem('roles');
-        localStorage.removeItem('username');
-        window.location.href = 'login.html';
-    });
-
-    document.getElementById('closeBitacoraModal').onclick = function() {
-        document.getElementById('bitacoraModal').style.display = "none";
+        document.getElementById('errorModal').style.display = 'block';
     }
+}
 
-    window.onclick = function(event) {
-        const modal = document.getElementById('bitacoraModal');
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
+// Check which page we are on
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    const isDashboard = document.getElementById('enviosGrid') !== null;
+
+    if (loginForm) {
+        initLogin();
+    } else if (isDashboard) {
+        initDashboard();
     }
 });
 
-async function cargarEnvios() {
-    try {
-        const res = await fetchWithAuth(`${API_URL}/optimizados`);
-        if (res.ok) {
-            enviosGlobal = await res.json();
-            renderEnvios(enviosGlobal);
+function initLogin() {
+    const form = document.getElementById('loginForm');
+    const errorDiv = document.getElementById('login-error');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            username: form.username.value,
+            password: form.password.value
+        };
+
+        try {
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                sessionStorage.setItem('jwt_token', data.token);
+                window.location.href = 'dashboard.html';
+            } else {
+                errorDiv.innerText = 'Credenciales inválidas';
+                errorDiv.style.display = 'block';
+            }
+        } catch (err) {
+            errorDiv.innerText = 'Error de conexión con el servidor.';
+            errorDiv.style.display = 'block';
         }
-    } catch (error) {
-        console.error('Error cargando envíos:', error);
-    }
-}
-
-function renderEnvios(envios) {
-    const grid = document.getElementById('envios-grid');
-    grid.innerHTML = '';
-    const roles = getRoles();
-    
-    envios.forEach(envio => {
-        const tarjeta = document.createElement('div');
-        tarjeta.className = 'tarjeta-envio';
-        
-        const verBitacoraBtn = (roles.includes('ROLE_ADMIN') || roles.includes('ROLE_OPERADOR')) 
-            ? `<button onclick="verBitacora(${envio.id})">Ver Bitácora</button>` : '';
-
-        tarjeta.innerHTML = `
-            <h4>${envio.codigoRastreo}</h4>
-            <span class="pill-status status-${envio.estadoEnvio}">${envio.estadoEnvio.replace('_', ' ')}</span>
-            <p><strong>Destino:</strong> ${envio.direccionDestino}</p>
-            <p><strong>Peso:</strong> ${envio.pesoKg} kg</p>
-            <p><strong>Costo:</strong> ₡${envio.costo}</p>
-            <p><strong>Vehículo:</strong> ${envio.placaVehiculo || 'N/A'}</p>
-            <p><strong>Conductor:</strong> ${envio.nombreConductor || 'N/A'}</p>
-            <div class="acciones">
-                ${envio.estadoEnvio === 'PENDIENTE' ? `<button onclick="actualizarEstado(${envio.id}, 'EN_TRANSITO')">Marcar en Tránsito</button>` : ''}
-                ${envio.estadoEnvio === 'EN_TRANSITO' ? `<button onclick="actualizarEstado(${envio.id}, 'ENTREGADO')">Marcar Entregado</button>` : ''}
-                ${verBitacoraBtn}
-            </div>
-        `;
-        
-        grid.appendChild(tarjeta);
     });
 }
 
-async function actualizarEstado(id, nuevoEstado) {
-    const obs = prompt("Ingrese justificación para el cambio de estado:");
-    if (obs === null) return; // Cancelado
+function initDashboard() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    const payload = parseJwt(token);
+    const roles = payload.roles || [];
+    document.getElementById('user-info').innerText = payload.sub;
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = 'index.html';
+    });
+
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+            document.getElementById('nav-filters').classList.toggle('show');
+        });
+    }
+
+    // Close Modals
+    document.getElementById('closeBitacoraModal').onclick = () => document.getElementById('bitacoraModal').style.display = 'none';
+    if(document.getElementById('closeErrorModal')) {
+        document.getElementById('closeErrorModal').onclick = () => document.getElementById('errorModal').style.display = 'none';
+    }
+    window.onclick = (e) => {
+        if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+    };
+
+    // Filters
+    document.querySelectorAll('#nav-filters button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('#nav-filters button').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilter = e.target.getAttribute('data-filter');
+            renderEnvios();
+        });
+    });
+
+    // Role Based rendering
+    if (roles.includes('ROLE_ADMIN')) {
+        document.getElementById('panel-admin').style.display = 'block';
+    } else if (roles.includes('ROLE_OPERADOR')) {
+        document.getElementById('panel-admin').style.display = 'block';
+        document.getElementById('btn-nuevo-vehiculo').style.display = 'none'; // Only Admin can add vehicle
+    }
+
+    if (roles.includes('ROLE_ADMIN') || roles.includes('ROLE_OPERADOR')) {
+        const formEnvio = document.getElementById('form-envio');
+        if (formEnvio) {
+            formEnvio.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = {
+                    codigoRastreo: formEnvio.codigoRastreo.value,
+                    direccionDestino: formEnvio.direccionDestino.value,
+                    pesoKg: parseFloat(formEnvio.pesoKg.value),
+                    costo: parseFloat(formEnvio.costo.value),
+                    vehiculoId: parseInt(formEnvio.vehiculoId.value),
+                    conductorId: parseInt(formEnvio.conductorId.value)
+                };
+                try {
+                    const res = await fetchWithAuth(`${API_URL}/envios`, {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                    if (res.ok) {
+                        alert('Envío registrado con éxito');
+                        formEnvio.reset();
+                        cargarEnvios();
+                    }
+                } catch (e) {
+                    // Handled by fetchWithAuth Error Modal
+                }
+            });
+        }
+    }
+
+    cargarEnvios();
+}
+
+async function cargarEnvios() {
+    try {
+        const res = await fetchWithAuth(`${API_URL}/envios/optimizados`);
+        if (res.ok) {
+            enviosGlobal = await res.json();
+            updateKPIs();
+            renderEnvios();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function updateKPIs() {
+    document.getElementById('kpi-total').innerText = enviosGlobal.length;
+    document.getElementById('kpi-entregados').innerText = enviosGlobal.filter(e => e.estadoEnvio === 'ENTREGADO').length;
+    const vehiculos = new Set();
+    enviosGlobal.forEach(e => { if (e.placaVehiculo) vehiculos.add(e.placaVehiculo); });
+    document.getElementById('kpi-vehiculos').innerText = vehiculos.size;
+}
+
+function renderEnvios() {
+    const grid = document.getElementById('enviosGrid');
+    grid.innerHTML = '';
+    
+    const token = sessionStorage.getItem('jwt_token');
+    const roles = parseJwt(token).roles || [];
+
+    const filtrados = currentFilter === 'TODOS' ? enviosGlobal : enviosGlobal.filter(e => e.estadoEnvio === currentFilter);
+
+    filtrados.forEach(envio => {
+        const article = document.createElement('article');
+        
+        let actionButtons = '';
+        if (roles.includes('ROLE_ADMIN') || roles.includes('ROLE_OPERADOR')) {
+            if (envio.estadoEnvio === 'PENDIENTE') {
+                actionButtons += `<button class="btn-secondary" onclick="actualizarEstado(${envio.id}, 'EN_TRANSITO')">Marcar en Tránsito</button>`;
+            }
+            actionButtons += `<button class="btn-secondary" onclick="verBitacora(${envio.id})">Ver Bitácora</button>`;
+        }
+        
+        if (roles.includes('ROLE_CONDUCTOR') || roles.includes('ROLE_ADMIN')) {
+            if (envio.estadoEnvio === 'EN_TRANSITO') {
+                actionButtons += `<button class="btn-primary" onclick="actualizarEstado(${envio.id}, 'ENTREGADO')">Marcar Entregado</button>`;
+            }
+        }
+
+        article.innerHTML = `
+            <div class="card-header">
+                <h4>${envio.codigoRastreo}</h4>
+                <span class="badge status-${envio.estadoEnvio}">${envio.estadoEnvio.replace('_', ' ')}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Destino:</strong> ${envio.direccionDestino}</p>
+                <p><strong>Peso/Costo:</strong> ${envio.pesoKg}kg - ₡${envio.costo}</p>
+                <p><strong>Vehículo:</strong> ${envio.placaVehiculo || 'N/A'}</p>
+                <p><strong>Conductor:</strong> ${envio.nombreConductor || 'N/A'}</p>
+            </div>
+            <div class="card-actions">
+                ${actionButtons}
+            </div>
+        `;
+        grid.appendChild(article);
+    });
+}
+
+window.actualizarEstado = async function(id, nuevoEstado) {
+    const obs = prompt("Ingrese observaciones para el cambio de estado:");
+    if (obs === null) return;
 
     try {
-        const res = await fetchWithAuth(`${API_URL}/${id}/estado`, {
+        const res = await fetchWithAuth(`${API_URL}/envios/${id}/estado`, {
             method: 'PATCH',
             body: JSON.stringify({ nuevoEstado: nuevoEstado, observaciones: obs })
         });
-        
         if (res.ok) {
             cargarEnvios();
-        } else {
-            const err = await res.json();
-            alert('Error actualizando estado: ' + (err.error || JSON.stringify(err)));
         }
-    } catch (error) {
-        console.error('Error:', error);
+    } catch (e) {
+        // Handled
     }
 }
 
-function filtrar(estado) {
-    if (estado === 'TODOS') {
-        renderEnvios(enviosGlobal);
-    } else {
-        const filtrados = enviosGlobal.filter(e => e.estadoEnvio === estado);
-        renderEnvios(filtrados);
-    }
-}
-
-async function verBitacora(envioId) {
+window.verBitacora = async function(id) {
     try {
-        const res = await fetchWithAuth(`${API_URL}/${envioId}/bitacora`);
+        const res = await fetchWithAuth(`${API_URL}/envios/${id}/bitacora`);
         if (res.ok) {
-            bitacoraActual = await res.json();
-            renderBitacora(bitacoraActual);
-            document.getElementById('bitacoraModal').style.display = "block";
+            const bitacora = await res.json();
+            const list = document.getElementById('bitacora-list');
+            if (bitacora.length === 0) {
+                list.innerHTML = '<p>No hay eventos registrados para este envío.</p>';
+            } else {
+                let html = '<table><tr><th>Fecha</th><th>Usuario</th><th>Cambio</th><th>Observaciones</th></tr>';
+                bitacora.forEach(b => {
+                    html += `<tr>
+                        <td>${new Date(b.fechaCambio).toLocaleString()}</td>
+                        <td>${b.usuario}</td>
+                        <td>${b.estadoAnterior} &rarr; ${b.estadoNuevo}</td>
+                        <td>${b.observaciones || ''}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                list.innerHTML = html;
+            }
+            document.getElementById('bitacoraModal').style.display = 'block';
         }
-    } catch (error) {
-        console.error('Error cargando bitácora:', error);
+    } catch (e) {
+        // Handled
     }
-}
-
-function renderBitacora(registros) {
-    const list = document.getElementById('bitacora-list');
-    list.innerHTML = '';
-    if (registros.length === 0) {
-        list.innerHTML = '<p>No hay historial para este envío.</p>';
-        return;
-    }
-    
-    let html = '<table border="1" width="100%" style="border-collapse: collapse; margin-top: 10px;">';
-    html += '<tr><th>Fecha/Hora</th><th>Usuario</th><th>Transición</th><th>Observaciones</th></tr>';
-    
-    registros.forEach(b => {
-        const fechaStr = new Date(b.fechaCambio).toLocaleString();
-        html += `<tr>
-            <td>${fechaStr}</td>
-            <td>${b.usuario}</td>
-            <td>${b.estadoAnterior} &rarr; ${b.estadoNuevo}</td>
-            <td>${b.observaciones || ''}</td>
-        </tr>`;
-    });
-    html += '</table>';
-    list.innerHTML = html;
-}
-
-window.filtrarBitacora = function() {
-    const inicioStr = document.getElementById('filtroFechaInicio').value;
-    const finStr = document.getElementById('filtroFechaFin').value;
-    
-    let filtrados = bitacoraActual;
-    
-    if (inicioStr) {
-        const inicioDate = new Date(inicioStr + 'T00:00:00');
-        filtrados = filtrados.filter(b => new Date(b.fechaCambio) >= inicioDate);
-    }
-    if (finStr) {
-        const finDate = new Date(finStr + 'T23:59:59');
-        filtrados = filtrados.filter(b => new Date(b.fechaCambio) <= finDate);
-    }
-    
-    renderBitacora(filtrados);
 }

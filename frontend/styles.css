@@ -1,175 +1,278 @@
 :root {
-    --primary-color: #1e3a8a; /* Corporative */
-    --secondary-color: #f3f4f6;
-    --text-color: #1f2937;
-    --border-color: #e5e7eb;
-    
-    /* Status colors */
-    --status-entregado: #16a34a;
-    --status-en-transito: #2563eb;
-    --status-pendiente: #d97706;
-    --status-cancelado: #dc2626;
+    --primary-color: #0284c7;
+    --primary-dark: #0369a1;
+    --bg-dark: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-success: #22c55e;
+    --accent-warning: #eab308;
+    --font-family: 'Inter', system-ui, sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-family);
     margin: 0;
     padding: 0;
-    color: var(--text-color);
-    background-color: #f9fafb;
+    color: var(--text-main);
+    background-color: var(--bg-dark);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
+h1, h2, h3, h4 { margin-top: 0; }
+a { text-decoration: none; color: inherit; }
+
 header {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--bg-card);
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
+header .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); }
+.header-actions { display: flex; align-items: center; gap: 1rem; }
 
-header .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+nav {
+    background-color: var(--bg-card);
+    padding: 0 2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
-
 nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 1.5rem;
+    list-style: none; margin: 0; padding: 0;
+    display: flex; gap: 1.5rem;
 }
-
-nav a {
-    color: white;
-    text-decoration: none;
+nav button {
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    padding: 1rem 0;
+    font-size: 1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+}
+nav button:hover, nav button.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
 }
 
 main {
     display: flex;
+    flex: 1;
     padding: 2rem;
     gap: 2rem;
-}
-
-.sidebar {
-    width: 300px;
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    height: fit-content;
-}
-
-.sidebar h3 {
-    margin-top: 0;
-}
-
-.filtros {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-}
-
-.filtros button {
+    max-width: 1400px;
+    margin: 0 auto;
     width: 100%;
-    padding: 0.5rem;
-    background: var(--secondary-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: left;
+    box-sizing: border-box;
 }
 
-.filtros button:hover {
-    background: #e5e7eb;
+aside {
+    width: 320px;
+    background-color: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 12px;
+    height: fit-content;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
+.aside-info { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
 
 form {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
 }
-
-form label {
-    font-weight: 500;
-    font-size: 0.9rem;
+label { font-size: 0.9rem; color: var(--text-muted); }
+input {
+    padding: 0.75rem;
+    background-color: var(--bg-dark);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: var(--text-main);
 }
-
-form input {
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
 }
-
-form button {
-    margin-top: 1rem;
+.btn-primary {
     padding: 0.75rem;
     background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+.btn-primary:hover { background-color: var(--primary-dark); }
+.btn-secondary {
+    padding: 0.5rem;
+    background-color: transparent;
+    color: var(--text-muted);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-secondary:hover {
+    background-color: rgba(255,255,255,0.05);
+    color: var(--text-main);
 }
 
-.tablero {
-    flex: 1;
+#kpiSection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
+.kpi-card {
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-dark));
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.kpi-title { font-size: 0.9rem; color: var(--text-muted); }
+.kpi-value { font-size: 2rem; font-weight: bold; color: var(--text-main); }
 
-.grid {
+.tablero { flex: 1; }
+#enviosGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
 }
 
-.tarjeta-envio {
-    background: white;
-    border-radius: 8px;
+article {
+    background-color: var(--bg-card);
+    border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border: 1px solid var(--border-color);
-}
-
-.tarjeta-envio h4 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-}
-
-.pill-status {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-}
-
-.status-ENTREGADO { background-color: var(--status-entregado); }
-.status-EN_TRANSITO { background-color: var(--status-en-transito); }
-.status-PENDIENTE { background-color: var(--status-pendiente); }
-.status-CANCELADO { background-color: var(--status-cancelado); }
-
-.acciones {
-    margin-top: 1rem;
+    border: 1px solid rgba(255,255,255,0.05);
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+article:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+}
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.card-header h4 { margin: 0; font-size: 1.1rem; }
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.badge.status-ENTREGADO { background-color: rgba(34, 197, 94, 0.2); color: var(--accent-success); }
+.badge.status-EN_TRANSITO { background-color: rgba(2, 132, 199, 0.2); color: var(--primary-color); }
+.badge.status-PENDIENTE { background-color: rgba(234, 179, 8, 0.2); color: var(--accent-warning); }
+.card-body p { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--text-muted); }
+.card-body strong { color: var(--text-main); }
+.card-actions { display: flex; gap: 0.5rem; margin-top: auto; }
+.card-actions button { flex: 1; }
+
+footer {
+    background-color: var(--bg-card);
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255,255,255,0.05);
 }
 
-.acciones button {
-    flex: 1;
-    padding: 0.5rem;
-    font-size: 0.8rem;
-    border: 1px solid var(--border-color);
-    background: white;
-    border-radius: 4px;
+.login-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(circle at center, var(--bg-card), var(--bg-dark));
+}
+.login-box {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(12px);
+    padding: 3rem;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+.login-box h2 { text-align: center; margin-bottom: 2rem; color: var(--primary-color); }
+.error-msg {
+    background: rgba(220, 38, 38, 0.2);
+    color: #fca5a5;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: none;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.modal {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+}
+.modal-content {
+    background-color: var(--bg-card);
+    margin: 5% auto; padding: 2rem; border-radius: 12px;
+    width: 90%; max-width: 800px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+}
+.close { color: var(--text-muted); float: right; font-size: 1.5rem; cursor: pointer; }
+.close:hover { color: var(--text-main); }
+.table-wrapper { overflow-x: auto; margin-top: 1rem; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+th { color: var(--text-muted); font-weight: 500; }
+
+.nav-header-mobile {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+}
+.nav-title-mobile {
+    font-weight: bold;
+    color: var(--text-muted);
+}
+.hamburger-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+.hamburger-btn:hover {
+    background: rgba(255,255,255,0.05);
 }
 
-.acciones button:hover {
-    background: var(--secondary-color);
+@media (max-width: 768px) {
+    main { flex-direction: column; }
+    aside { width: 100%; box-sizing: border-box; }
+    
+    .nav-header-mobile { display: flex; }
+    nav ul { 
+        flex-direction: column; 
+        gap: 0.5rem; 
+        padding-bottom: 1rem; 
+        display: none; 
+    }
+    nav ul.show {
+        display: flex;
+    }
 }

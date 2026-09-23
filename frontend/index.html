@@ -3,89 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExpresoFast - Control de Envíos</title>
+    <title>Login - ExpresoFast</title>
+    <meta name="description" content="Portal de inicio de sesión para operadores, administradores y conductores de ExpresoFast.">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Estilos rápidos para el modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; display: flex; flex-direction: column; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; align-self: flex-end; }
-        .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
-        .bitacora-filtros { margin-bottom: 15px; }
-    </style>
 </head>
 <body>
-    <header>
-        <div class="logo">ExpresoFast Control Panel</div>
-        <nav>
-            <ul>
-                <li><a href="#">Dashboard</a></li>
-                <li id="menu-reportes"><a href="#">Reportes</a></li>
-                <li><a href="#" id="btn-logout">Cerrar Sesión</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <aside class="sidebar">
-            <h3>Filtros de Estado</h3>
-            <ul class="filtros">
-                <li><button onclick="filtrar('TODOS')">Todos</button></li>
-                <li><button onclick="filtrar('PENDIENTE')">Pendientes</button></li>
-                <li><button onclick="filtrar('EN_TRANSITO')">En Tránsito</button></li>
-                <li><button onclick="filtrar('ENTREGADO')">Entregados</button></li>
-            </ul>
-
-            <div id="panel-registrar" style="display: none;">
-                <h3>Registrar Nuevo Envío</h3>
-                <form id="form-envio">
-                    <label for="codigoRastreo">Código Rastreo:</label>
-                    <input type="text" id="codigoRastreo" required>
-                    
-                    <label for="direccionDestino">Dirección Destino:</label>
-                    <input type="text" id="direccionDestino" required>
-                    
-                    <label for="pesoKg">Peso (Kg):</label>
-                    <input type="number" id="pesoKg" step="0.01" required>
-                    
-                    <label for="costo">Costo:</label>
-                    <input type="number" id="costo" step="0.01" required>
-                    
-                    <label for="vehiculoId">ID Vehículo:</label>
-                    <input type="number" id="vehiculoId" required>
-                    
-                    <label for="conductorId">ID Conductor:</label>
-                    <input type="number" id="conductorId" required>
-                    
-                    <button type="submit">Registrar</button>
-                </form>
-            </div>
-        </aside>
-
-        <section class="tablero">
-            <h2>Tablero de Control - <span id="user-info"></span></h2>
-            <div id="envios-grid" class="grid">
-                <!-- Tarjetas generadas dinámicamente -->
-            </div>
-        </section>
-    </main>
-
-    <!-- Modal de Bitácora -->
-    <div id="bitacoraModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeBitacoraModal">&times;</span>
-            <h2>Historial de Auditoría</h2>
-            <div class="bitacora-filtros">
-                <label>Desde: <input type="date" id="filtroFechaInicio"></label>
-                <label>Hasta: <input type="date" id="filtroFechaFin"></label>
-                <button onclick="filtrarBitacora()">Filtrar</button>
-            </div>
-            <div id="bitacora-list">
-                <!-- Historial -->
-            </div>
+    <div class="login-wrapper">
+        <div class="login-box">
+            <h2>ExpresoFast</h2>
+            <div id="login-error" class="error-msg" aria-live="polite"></div>
+            <form id="loginForm">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" required aria-required="true">
+                
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required aria-required="true">
+                
+                <button type="submit" class="btn-primary">Iniciar Sesión</button>
+            </form>
         </div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>

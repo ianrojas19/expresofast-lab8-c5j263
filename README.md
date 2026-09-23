@@ -1,8 +1,8 @@
-# ExpresoFast - Laboratorio 7
+# ExpresoFast - Laboratorio 8
 
 **Curso:** IF0009 - Desarrollo de Software IV  
 **Ciclo:** II-2026  
-**Laboratorio:** 7 - ExpresoFast Parte III: Pruebas Unitarias, Integración y Cobertura  
+**Laboratorio:** 8 - Integración Pila Completa (Full-Stack) - Consola de Operación Logística "ExpresoFast" con Backend REST, HTML5 Semántico y CSS3 Responsivo
 **Estudiante:** Ian Rojas Sequeira  
 **Carnet:** C5J263  
 
@@ -10,7 +10,7 @@
 
 ## Descripción
 
-Segunda parte de la plataforma logística ExpresoFast. Implementa seguridad basada en JWT, control de acceso por roles (RBAC), capa de DTOs con validaciones OWASP, bitácora de auditoría transaccional y manejo centralizado de excepciones.
+Cuarta parte de la plataforma logística ExpresoFast. Implementación de una Consola Web de Operación Logística conectando una API REST de Spring Boot con un Front-end usando HTML5 semántico, un diseño responsivo con CSS3 puro (Flexbox/Grid), y consumo asíncrono con JavaScript Fetch, manejando sesiones seguras mediante JWT.
 
 ---
 
