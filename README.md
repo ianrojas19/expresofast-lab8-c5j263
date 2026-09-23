@@ -106,7 +106,7 @@ python -m http.server 5500
 # Alternativas: Usar extension de Visual Studio Code "Live Server"
 ```
 
-Acceder en: `http://localhost:5500/login.html`
+Acceder en: `http://localhost:5500/`
 
 ---
 
