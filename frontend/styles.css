@@ -1,0 +1,175 @@
+:root {
+    --primary-color: #1e3a8a; /* Corporative */
+    --secondary-color: #f3f4f6;
+    --text-color: #1f2937;
+    --border-color: #e5e7eb;
+    
+    /* Status colors */
+    --status-entregado: #16a34a;
+    --status-en-transito: #2563eb;
+    --status-pendiente: #d97706;
+    --status-cancelado: #dc2626;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+    background-color: #f9fafb;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 1.5rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+}
+
+main {
+    display: flex;
+    padding: 2rem;
+    gap: 2rem;
+}
+
+.sidebar {
+    width: 300px;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.sidebar h3 {
+    margin-top: 0;
+}
+
+.filtros {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.filtros button {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.filtros button:hover {
+    background: #e5e7eb;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+form label {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+form input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+form button {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tablero {
+    flex: 1;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.tarjeta-envio {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+}
+
+.tarjeta-envio h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.pill-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.status-ENTREGADO { background-color: var(--status-entregado); }
+.status-EN_TRANSITO { background-color: var(--status-en-transito); }
+.status-PENDIENTE { background-color: var(--status-pendiente); }
+.status-CANCELADO { background-color: var(--status-cancelado); }
+
+.acciones {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.acciones button {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.acciones button:hover {
+    background: var(--secondary-color);
+}
